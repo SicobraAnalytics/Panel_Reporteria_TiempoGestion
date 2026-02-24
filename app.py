@@ -165,7 +165,23 @@ consolidado["Pendiente"] = (
 consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
 
 # -------------------------------------------------
-# FUNCIONES DE FORMATO Y COLOR
+# 8. FILTRO POR GESTOR
+# -------------------------------------------------
+
+gestores = ["Todos"] + sorted(consolidado["NombreGestor"].unique().tolist())
+
+gestor_seleccionado = st.selectbox(
+    "👤 Filtrar por Gestor",
+    gestores
+)
+
+if gestor_seleccionado != "Todos":
+    consolidado = consolidado[
+        consolidado["NombreGestor"] == gestor_seleccionado
+    ]
+
+# -------------------------------------------------
+# 9. FUNCIONES DE FORMATO Y COLOR
 # -------------------------------------------------
 
 def format_timedelta(td):
@@ -187,7 +203,7 @@ def color_pendiente(val):
         return "background-color: #e74c3c; color: white;"  # Rojo
 
 # -------------------------------------------------
-# 8. MOSTRAR RESULTADOS
+# 10. MOSTRAR RESULTADOS
 # -------------------------------------------------
 
 st.subheader("📋 Consolidado General")
