@@ -4,7 +4,7 @@ import numpy as np
 
 st.set_page_config(page_title="Reporte Tiempo Sin Gestión", layout="wide")
 
-st.title("📊 Reporte Tiempo Sin Gestión")
+st.title(" Reporte Tiempo Sin Gestión")
 
 # -------------------------------------------------
 # 1. CARGAR ARCHIVOS
