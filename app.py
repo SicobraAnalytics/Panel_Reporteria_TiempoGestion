@@ -132,9 +132,18 @@ excesos["Exceso"] = excesos.apply(calcular_exceso, axis=1)
 # 7. CONSOLIDADO FINAL
 # -------------------------------------------------
 
-consolidado = df.groupby("NombreGestor")[
-    ["TiempoSinGestion", "TiempoRecuperado"]
-].sum().reset_index()
+
+# Asegurar tipo timedelta
+df["TiempoSinGestion"] = pd.to_timedelta(df["TiempoSinGestion"])
+df["TiempoRecuperado"] = pd.to_timedelta(df["TiempoRecuperado"])
+
+consolidado = (
+    df.groupby("NombreGestor", as_index=False)
+    .agg({
+        "TiempoSinGestion": "sum",
+        "TiempoRecuperado": "sum"
+    })
+)
 
 consolidado = consolidado.merge(
     excesos[["NombreGestor", "TotalTiempoAwait", "Exceso"]],
@@ -153,9 +162,7 @@ consolidado["Pendiente"] = (
     - consolidado["TiempoRecuperado"]
 )
 
-consolidado["Pendiente"] = consolidado["Pendiente"].apply(
-    lambda x: max(pd.Timedelta(0), x)
-)
+consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
 
 # -------------------------------------------------
 # 8. MOSTRAR RESULTADOS
