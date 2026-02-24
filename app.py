@@ -164,10 +164,19 @@ consolidado["Pendiente"] = (
 
 consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
 
+
 # -------------------------------------------------
 # 8. MOSTRAR RESULTADOS
 # -------------------------------------------------
 
+def format_timedelta(td):
+    if pd.isna(td):
+        return "00:00:00"
+    total_seconds = int(td.total_seconds())
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 st.subheader("📋 Consolidado General")
 
 st.dataframe(consolidado, use_container_width=True)
@@ -176,6 +185,10 @@ st.subheader("📈 KPIs Generales")
 
 col1, col2, col3 = st.columns(3)
 
-col1.metric("Total Sin Gestión", consolidado["TiempoSinGestion"].sum())
-col2.metric("Total Recuperado", consolidado["TiempoRecuperado"].sum())
-col3.metric("Total Pendiente", consolidado["Pendiente"].sum())
+total_sg = consolidado["TiempoSinGestion"].sum()
+total_rec = consolidado["TiempoRecuperado"].sum()
+total_pen = consolidado["Pendiente"].sum()
+
+col1.metric("Total Sin Gestión", format_timedelta(total_sg))
+col2.metric("Total Recuperado", format_timedelta(total_rec))
+col3.metric("Total Pendiente", format_timedelta(total_pen))
