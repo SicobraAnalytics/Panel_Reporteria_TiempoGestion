@@ -164,9 +164,8 @@ consolidado["Pendiente"] = (
 
 consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
 
-
 # -------------------------------------------------
-# 8. MOSTRAR RESULTADOS
+# FUNCIONES DE FORMATO Y COLOR
 # -------------------------------------------------
 
 def format_timedelta(td):
@@ -177,11 +176,52 @@ def format_timedelta(td):
     minutes = (total_seconds % 3600) // 60
     seconds = total_seconds % 60
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+
+def color_pendiente(val):
+    if val == pd.Timedelta(0):
+        return "background-color: #2ecc71; color: white;"  # Verde
+    elif val <= pd.Timedelta(hours=1):
+        return "background-color: #f1c40f; color: black;"  # Amarillo
+    else:
+        return "background-color: #e74c3c; color: white;"  # Rojo
+
+# -------------------------------------------------
+# 8. MOSTRAR RESULTADOS
+# -------------------------------------------------
+
 st.subheader("📋 Consolidado General")
 
-st.dataframe(consolidado, use_container_width=True)
+# Copia para formatear sin alterar original
+consolidado_display = consolidado.copy()
+
+# Formatear columnas de tiempo
+columnas_formato = [
+    "TiempoSinGestion",
+    "TiempoRecuperado",
+    "TotalTiempoAwait",
+    "Exceso",
+    "TiempoRealARecuperar",
+    "Pendiente"
+]
+
+for col in columnas_formato:
+    consolidado_display[col] = consolidado_display[col].apply(format_timedelta)
+
+# Aplicar color solo a columna Pendiente
+styled_table = consolidado_display.style.apply(
+    lambda row: [
+        color_pendiente(consolidado.loc[row.name, "Pendiente"])
+        if col == "Pendiente" else ""
+        for col in consolidado_display.columns
+    ],
+    axis=1
+)
+
+st.dataframe(styled_table, use_container_width=True)
 
 st.subheader("📈 KPIs Generales")
+
 
 col1, col2, col3 = st.columns(3)
 
