@@ -132,7 +132,48 @@ excesos["TipoContrato"] = np.where(
 excesos["Exceso"] = excesos.apply(calcular_exceso, axis=1)
 
 # -------------------------------------------------
-# 7. CONSOLIDADO FINAL
+# 7. FILTROS
+# -------------------------------------------------
+
+col1, col2, col3 = st.columns(3)
+
+# FILTRO SUPERVISOR
+supervisores = ["Todos"] + sorted(df["NombreSupervisor"].dropna().unique().tolist())
+
+supervisor_sel = col1.selectbox(
+    "👨‍💼 Filtrar por Supervisor",
+    supervisores
+)
+
+# FILTRO GESTOR
+gestores = ["Todos"] + sorted(df["NombreGestor"].dropna().unique().tolist())
+
+gestor_sel = col2.selectbox(
+    "👤 Filtrar por Gestor",
+    gestores
+)
+
+# FILTRO FECHA
+fechas = sorted(df["Fecha"].dropna().unique())
+
+fecha_sel = col3.selectbox(
+    "📅 Filtrar por Fecha",
+    ["Todas"] + fechas
+)
+
+# APLICAR FILTROS
+
+if supervisor_sel != "Todos":
+    df = df[df["NombreSupervisor"] == supervisor_sel]
+
+if gestor_sel != "Todos":
+    df = df[df["NombreGestor"] == gestor_sel]
+
+if fecha_sel != "Todas":
+    df = df[df["Fecha"] == fecha_sel]
+
+# -------------------------------------------------
+# 8. CONSOLIDADO FINAL
 # -------------------------------------------------
 
 
@@ -166,50 +207,6 @@ consolidado["Pendiente"] = (
 )
 
 consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
-
-# -------------------------------------------------
-# 8. FILTROS
-# -------------------------------------------------
-
-col1, col2, col3 = st.columns(3)
-
-# FILTRO SUPERVISOR
-supervisores = ["Todos"] + sorted(df["NombreSupervisor"].dropna().unique().tolist())
-
-supervisor_sel = col1.selectbox(
-    "👨‍💼 Filtrar por Supervisor",
-    supervisores
-)
-
-# FILTRO GESTOR
-gestores = ["Todos"] + sorted(consolidado["NombreGestor"].unique().tolist())
-
-gestor_seleccionado = col2.selectbox(
-    "👤 Filtrar por Gestor",
-    gestores
-)
-
-# FILTRO FECHA
-fechas = sorted(df["Fecha"].dropna().unique())
-
-fecha_sel = col3.selectbox(
-    "📅 Filtrar por Fecha",
-    ["Todas"] + fechas
-)
-
-# APLICAR FILTROS
-
-if supervisor_sel != "Todos":
-    df = df[df["NombreSupervisor"] == supervisor_sel]
-
-if fecha_sel != "Todas":
-    df = df[df["Fecha"] == fecha_sel]
-
-if gestor_seleccionado != "Todos":
-    consolidado = consolidado[
-        consolidado["NombreGestor"] == gestor_seleccionado
-    ]
-
 
 
 # -------------------------------------------------
