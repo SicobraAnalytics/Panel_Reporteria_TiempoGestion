@@ -51,6 +51,9 @@ df = llamadas.merge(
     how="left"
 )
 
+# Convertir fecha
+df["Fecha"] = pd.to_datetime(df["Fecha"]).dt.date
+
 # -------------------------------------------------
 # 4. SEPARAR TIEMPO DENTRO Y FUERA DE JORNADA
 # -------------------------------------------------
@@ -138,7 +141,7 @@ df["TiempoSinGestion"] = pd.to_timedelta(df["TiempoSinGestion"])
 df["TiempoRecuperado"] = pd.to_timedelta(df["TiempoRecuperado"])
 
 consolidado = (
-    df.groupby("NombreGestor", as_index=False)
+    df.groupby(["NombreSupervisor","NombreGestor"], as_index=False)
     .agg({
         "TiempoSinGestion": "sum",
         "TiempoRecuperado": "sum"
@@ -165,20 +168,49 @@ consolidado["Pendiente"] = (
 consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
 
 # -------------------------------------------------
-# 8. FILTRO POR GESTOR
+# 8. FILTROS
 # -------------------------------------------------
 
+col1, col2, col3 = st.columns(3)
+
+# FILTRO SUPERVISOR
+supervisores = ["Todos"] + sorted(df["NombreSupervisor"].dropna().unique().tolist())
+
+supervisor_sel = col1.selectbox(
+    "👨‍💼 Filtrar por Supervisor",
+    supervisores
+)
+
+# FILTRO GESTOR
 gestores = ["Todos"] + sorted(consolidado["NombreGestor"].unique().tolist())
 
-gestor_seleccionado = st.selectbox(
+gestor_seleccionado = col2.selectbox(
     "👤 Filtrar por Gestor",
     gestores
 )
+
+# FILTRO FECHA
+fechas = sorted(df["Fecha"].dropna().unique())
+
+fecha_sel = col3.selectbox(
+    "📅 Filtrar por Fecha",
+    ["Todas"] + fechas
+)
+
+# APLICAR FILTROS
+
+if supervisor_sel != "Todos":
+    df = df[df["NombreSupervisor"] == supervisor_sel]
+
+if fecha_sel != "Todas":
+    df = df[df["Fecha"] == fecha_sel]
 
 if gestor_seleccionado != "Todos":
     consolidado = consolidado[
         consolidado["NombreGestor"] == gestor_seleccionado
     ]
+
+
 
 # -------------------------------------------------
 # 9. FUNCIONES DE FORMATO Y COLOR
