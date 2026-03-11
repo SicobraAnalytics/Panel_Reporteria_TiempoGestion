@@ -44,10 +44,11 @@ llamadas["DIFERENCI"] = pd.to_timedelta(llamadas["DIFERENCI"])
 # 3. CRUCE DE DATA
 # -------------------------------------------------
 
-df = llamadas.merge(
-    adherencia,
-    left_on="IdUsuario",
-    right_on="IdUser",
+
+df = adherencia.merge(
+    llamadas,
+    left_on="IdUser",
+    right_on="IdUsuario",
     how="left"
 )
 
