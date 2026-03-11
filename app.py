@@ -60,9 +60,15 @@ df["Fecha"] = pd.to_datetime(df["Fecha_x"]).dt.date
 
 llamadas["HoraFin_td"] = pd.to_timedelta(llamadas["FechaFin"].str[11:19])
 
+df["HoraFin_td"] = pd.to_timedelta(df["FechaFin"].str[11:19])
+
 df["DentroJornada"] = np.where(
-    (llamadas["HoraFin_td"] >= df["HoraLogueo"]) &
-    (llamadas["HoraFin_td"] <= df["HoraDeslogueo"]),
+    (df["HoraFin_td"] >= df["HoraLogueo"])
+    & (df["HoraFin_td"] <= df["HoraDeslogueo"]),
+    
+    # (llamadas["HoraFin_td"] >= df["HoraLogueo"]) 
+    # & (llamadas["HoraFin_td"] <= df["HoraDeslogueo"]),
+    
     True,
     False
 )
