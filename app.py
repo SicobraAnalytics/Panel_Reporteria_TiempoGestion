@@ -52,7 +52,7 @@ df = llamadas.merge(
 )
 
 # Convertir fecha
-df["Fecha"] = pd.to_datetime(df["Fecha"]).dt.date
+df["Fecha"] = pd.to_datetime(df["Fecha_x"]).dt.date
 
 # -------------------------------------------------
 # 4. SEPARAR TIEMPO DENTRO Y FUERA DE JORNADA
