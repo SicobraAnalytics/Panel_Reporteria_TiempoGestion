@@ -18,6 +18,9 @@ def load_data():
 
 adherencia, llamadas = load_data()
 
+# se convierte el tipo de dato de fecha al mismo de la fecha del archivo de llamadas
+adherencia["Fecha"] = pd.to_datetime(adherencia["Fecha"], dayfirst=True).dt.date
+
 # -------------------------------------------------
 # 2. FORMATEAR DATOS
 # -------------------------------------------------
