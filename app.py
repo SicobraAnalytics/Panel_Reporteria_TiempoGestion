@@ -187,8 +187,10 @@ if fecha_sel != "Todas":
 df["TiempoSinGestion"] = pd.to_timedelta(df["TiempoSinGestion"])
 df["TiempoRecuperado"] = pd.to_timedelta(df["TiempoRecuperado"])
 
+# se incluye fecha en consolidado para que muestre el total de tiempo sin gestión de cada día
+
 consolidado = (
-    df.groupby(["NombreSupervisor","NombreGestor"], as_index=False)
+    df.groupby(["Fecha","NombreSupervisor","NombreGestor"], as_index=False)
     .agg({
         "TiempoSinGestion": "sum",
         "TiempoRecuperado": "sum"
@@ -196,8 +198,8 @@ consolidado = (
 )
 
 consolidado = consolidado.merge(
-    excesos[["NombreGestor", "TotalTiempoAwait", "Exceso"]],
-    on="NombreGestor",
+    excesos[["Fecha","NombreGestor", "TotalTiempoAwait", "Exceso"]],
+    on=["Fecha","NombreGestor"],
     how="left"
 )
 
