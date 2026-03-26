@@ -6,9 +6,8 @@ st.set_page_config(page_title="Reporte Tiempo Sin Gestión", layout="wide")
 
 st.title(" Reporte Tiempo Sin Gestión")
 
-# -------------------------------------------------
+
 # 1. CARGAR ARCHIVOS
-# -------------------------------------------------
 
 @st.cache_data
 def load_data():
@@ -21,9 +20,8 @@ adherencia, llamadas = load_data()
 # se convierte el tipo de dato de fecha al mismo de la fecha del archivo de llamadas
 adherencia["Fecha"] = pd.to_datetime(adherencia["Fecha"], dayfirst=True).dt.date
 
-# -------------------------------------------------
+
 # 2. FORMATEAR DATOS
-# -------------------------------------------------
 
 # Convertir tiempos adherencia
 columnas_tiempo = [
@@ -43,9 +41,9 @@ adherencia["HoraDeslogueo"] = pd.to_timedelta(adherencia["HoraDeslogueo"])
 # Llamadas
 llamadas["DIFERENCI"] = pd.to_timedelta(llamadas["DIFERENCI"])
 
-# -------------------------------------------------
+
 # 3. CRUCE DE DATA
-# -------------------------------------------------
+
 
 df = llamadas.merge(
     adherencia,
@@ -57,9 +55,8 @@ df = llamadas.merge(
 # Convertir fecha
 df["Fecha"] = pd.to_datetime(df["Fecha_x"]).dt.date
 
-# -------------------------------------------------
+
 # 4. SEPARAR TIEMPO DENTRO Y FUERA DE JORNADA
-# -------------------------------------------------
 
 llamadas["HoraFin_td"] = pd.to_timedelta(llamadas["FechaFin"].str[11:19])
 
@@ -90,9 +87,9 @@ df["TiempoRecuperado"] = np.where(
     pd.Timedelta(seconds=0)
 )
 
-# -------------------------------------------------
+
 # 5. DETERMINAR PART / FULL TIME
-# -------------------------------------------------
+
 
 df["DuracionJornada"] = df["HoraDeslogueo"] - df["HoraLogueo"]
 
@@ -102,9 +99,9 @@ df["TipoContrato"] = np.where(
     "FULL TIME"
 )
 
-# -------------------------------------------------
+
 # 6. CALCULAR EXCESOS
-# -------------------------------------------------
+
 
 def calcular_exceso(row):
 
@@ -140,9 +137,9 @@ excesos["TipoContrato"] = np.where(
 
 excesos["Exceso"] = excesos.apply(calcular_exceso, axis=1)
 
-# -------------------------------------------------
+
 # 7. FILTROS
-# -------------------------------------------------
+
 
 col1, col2, col3 = st.columns(3)
 
@@ -150,7 +147,7 @@ col1, col2, col3 = st.columns(3)
 supervisores = ["Todos"] + sorted(df["NombreSupervisor"].dropna().unique().tolist())
 
 supervisor_sel = col1.selectbox(
-    "👨‍💼 Filtrar por Supervisor",
+    "Filtrar por Supervisor",
     supervisores
 )
 
@@ -158,7 +155,7 @@ supervisor_sel = col1.selectbox(
 gestores = ["Todos"] + sorted(df["NombreGestor"].dropna().unique().tolist())
 
 gestor_sel = col2.selectbox(
-    "👤 Filtrar por Gestor",
+    "Filtrar por Gestor",
     gestores
 )
 
@@ -166,7 +163,7 @@ gestor_sel = col2.selectbox(
 fechas = sorted(df["Fecha"].dropna().unique())
 
 fecha_sel = col3.selectbox(
-    "📅 Filtrar por Fecha",
+    "Filtrar por Fecha",
     ["Todas"] + fechas
 )
 
@@ -181,9 +178,9 @@ if gestor_sel != "Todos":
 if fecha_sel != "Todas":
     df = df[df["Fecha"] == fecha_sel]
 
-# -------------------------------------------------
+
+
 # 8. CONSOLIDADO FINAL
-# -------------------------------------------------
 
 
 # Asegurar tipo timedelta
@@ -220,9 +217,9 @@ consolidado["Pendiente"] = (
 consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
 
 
-# -------------------------------------------------
+
 # 9. FUNCIONES DE FORMATO Y COLOR
-# -------------------------------------------------
+
 
 def format_timedelta(td):
     if pd.isna(td):
@@ -242,11 +239,11 @@ def color_pendiente(val):
     else:
         return "background-color: #e74c3c; color: white;"  # Rojo
 
-# -------------------------------------------------
-# 10. MOSTRAR RESULTADOS
-# -------------------------------------------------
 
-st.subheader("📋 Consolidado General")
+# 10. MOSTRAR RESULTADOS
+
+
+st.subheader(" Consolidado General")
 
 # Copia para formatear sin alterar original
 consolidado_display = consolidado.copy()
@@ -276,7 +273,7 @@ styled_table = consolidado_display.style.apply(
 
 st.dataframe(styled_table, use_container_width=True)
 
-st.subheader("📈 KPIs Generales")
+st.subheader(" KPIs Generales")
 
 
 col1, col2, col3 = st.columns(3)
