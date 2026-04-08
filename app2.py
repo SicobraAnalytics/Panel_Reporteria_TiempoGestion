@@ -59,7 +59,7 @@ df = llamadas.merge(
     adherencia,
     left_on="IdUsuario",
     right_on="IdUser",
-    how="left"
+    how="left",
     suffixes=("", "_adh")
 )
 
@@ -67,7 +67,7 @@ df = llamadas.merge(
 df["Fecha"] = pd.to_datetime(df["Fecha_adh"], dayfirst=True).dt.date
 
 # Limpiar DIFERENCI (evita errores)
-df["DIFERENCI"] = pd.to_timedelta(df["DIFERENCI"], errors="coerce").fillna(pd.Timedelta(0)
+df["DIFERENCI"] = pd.to_timedelta(df["DIFERENCI"], errors="coerce").fillna(pd.Timedelta(0))
 
 # 4. SEPARAR TIEMPO DENTRO Y FUERA DE JORNADA
 
