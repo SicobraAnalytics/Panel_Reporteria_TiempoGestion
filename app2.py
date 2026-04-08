@@ -82,7 +82,16 @@ df["HoraFin_td"] = pd.to_timedelta(df["FechaFin"].str[11:19])
 #     False
 # )
 
+# df["DentroJornada"] = np.where(
+#     (df["HoraFin_td"] >= df["HoraInicio"]) &
+#     (df["HoraFin_td"] <= df["HoraFin"]),
+#     True,
+#     False
+# )
+
 df["DentroJornada"] = np.where(
+    (df["HoraInicio"].notna()) &
+    (df["HoraFin"].notna()) &
     (df["HoraFin_td"] >= df["HoraInicio"]) &
     (df["HoraFin_td"] <= df["HoraFin"]),
     True,
