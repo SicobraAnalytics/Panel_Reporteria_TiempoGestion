@@ -62,6 +62,8 @@ df = llamadas.merge(
     how="left"
 )
 
+df.columns = df.columns.str.replace("_x", "").str.replace("_y", "")
+
 # Convertir fecha
 df["Fecha"] = pd.to_datetime(df["Fecha_x"]).dt.date
 
@@ -102,8 +104,9 @@ df["TiempoRecuperado"] = np.where(
 )
 
 
-# 5. DETERMINAR PART / FULL TIME
 
+
+# 6. CALCULAR EXCESOS
 
 def calcular_exceso(row):
 
@@ -128,32 +131,6 @@ def calcular_exceso(row):
 
     return exceso
 
-
-# 6. CALCULAR EXCESOS
-
-
-def calcular_exceso(row):
-
-    exceso = pd.Timedelta(0)
-
-    # BREAK
-    if row["TipoContrato"] == "PART TIME":
-        limite_break = pd.Timedelta(minutes=15)
-    else:
-        limite_break = pd.Timedelta(minutes=30)
-
-    exceso += max(pd.Timedelta(0), row["TiempoAwaitBreak"] - limite_break)
-
-    # BAÑO
-    exceso += max(pd.Timedelta(0), row["TiempoAwaitBanio"] - pd.Timedelta(minutes=20))
-
-    # INVESTIGACION
-    exceso += max(pd.Timedelta(0), row["TiempoAwaitInvestigacion"] - pd.Timedelta(hours=1))
-
-    # NETWORK
-    exceso += max(pd.Timedelta(0), row["TiempoAwaitNetworkSic"] - pd.Timedelta(hours=1))
-
-    return exceso
 
 excesos = adherencia.copy()
 
