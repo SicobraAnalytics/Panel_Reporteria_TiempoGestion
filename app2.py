@@ -54,6 +54,12 @@ llamadas["DIFERENCI"] = pd.to_timedelta(llamadas["DIFERENCI"])
 
 # 3. CRUCE DE DATA
 
+# renombra columnas
+adherencia.rename(columns={
+    "HoraInicio": "HoraInicioJornada",
+    "HoraFin": "HoraFinJornada"
+}, inplace=True)
+
 
 df = llamadas.merge(
     adherencia,
@@ -70,8 +76,6 @@ df["Fecha"] = pd.to_datetime(df["Fecha_adh"], dayfirst=True).dt.date
 df["DIFERENCI"] = pd.to_timedelta(df["DIFERENCI"], errors="coerce").fillna(pd.Timedelta(0))
 
 # 4. SEPARAR TIEMPO DENTRO Y FUERA DE JORNADA
-
-llamadas["HoraFin_td"] = pd.to_timedelta(llamadas["FechaFin"].str[11:19])
 
 df["HoraInicioCall"] = pd.to_timedelta(df["FechaInicio"].str[11:19], errors="coerce")
 df["HoraFinCall"] = pd.to_timedelta(df["FechaFin"].str[11:19], errors="coerce")
@@ -100,8 +104,6 @@ df["TiempoRecuperado"] = np.where(
     df["DIFERENCI"],
     pd.Timedelta(seconds=0)
 )
-
-
 
 
 # 6. CALCULAR EXCESOS
@@ -203,11 +205,16 @@ consolidado = (
     })
 )
 
+consolidado["TiempoSinGestion"] = consolidado["TiempoSinGestion"].dt.round("1s")
+consolidado["TiempoRecuperado"] = consolidado["TiempoRecuperado"].dt.round("1s")
+
 consolidado = consolidado.merge(
     excesos[["Fecha","NombreGestor", "TotalTiempoAwait", "Exceso"]],
     on=["Fecha","NombreGestor"],
     how="left"
 )
+consolidado["TotalTiempoAwait"] = pd.to_timedelta(consolidado["TotalTiempoAwait"]).dt.round("1s")
+consolidado["Exceso"] = pd.to_timedelta(consolidado["Exceso"]).dt.round("1s")
 
 consolidado["TiempoRealARecuperar"] = (
     consolidado["TiempoSinGestion"]
@@ -221,6 +228,7 @@ consolidado["Pendiente"] = (
 )
 
 consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
+
 
 
 
