@@ -73,28 +73,16 @@ df["DIFERENCI"] = pd.to_timedelta(df["DIFERENCI"], errors="coerce").fillna(pd.Ti
 
 llamadas["HoraFin_td"] = pd.to_timedelta(llamadas["FechaFin"].str[11:19])
 
-df["HoraFin_td"] = pd.to_timedelta(df["FechaFin"].str[11:19])
-
-# df["DentroJornada"] = np.where(
-#     (df["HoraFin_td"] >= df["HoraLogueo"])
-#     & (df["HoraFin_td"] <= df["HoraDeslogueo"]),
-    
-#     True,
-#     False
-# )
-
-# df["DentroJornada"] = np.where(
-#     (df["HoraFin_td"] >= df["HoraInicio"]) &
-#     (df["HoraFin_td"] <= df["HoraFin"]),
-#     True,
-#     False
-# )
+df["HoraInicioCall"] = pd.to_timedelta(df["FechaInicio"].str[11:19], errors="coerce")
+df["HoraFinCall"] = pd.to_timedelta(df["FechaFin"].str[11:19], errors="coerce")
 
 df["DentroJornada"] = np.where(
-    (df["HoraInicio"].notna()) &
-    (df["HoraFin"].notna()) &
-    (df["HoraFin_td"] >= df["HoraInicio"]) &
-    (df["HoraFin_td"] <= df["HoraFin"]),
+    (df["HoraInicioJornada"].notna()) &
+    (df["HoraFinJornada"].notna()) &
+    (
+        (df["HoraInicioCall"] >= df["HoraInicioJornada"]) &
+        (df["HoraInicioCall"] <= df["HoraFinJornada"])
+    ),
     True,
     False
 )
@@ -242,7 +230,7 @@ consolidado["Pendiente"] = consolidado["Pendiente"].clip(lower=pd.Timedelta(0))
 def format_timedelta(td):
     if pd.isna(td):
         return "00:00:00"
-    total_seconds = int(td.total_seconds())
+    total_seconds = round(td.total_seconds())
     hours = total_seconds // 3600
     minutes = (total_seconds % 3600) // 60
     seconds = total_seconds % 60
